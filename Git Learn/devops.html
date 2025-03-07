@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="he">
+<head>
+    <meta charset="UTF-8">
+    <title>משחק למידה: Git, GitHub ו-Jenkins</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            direction: rtl;
+            padding: 20px;
+            background-color: #f0f0f0;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .question {
+            display: none;
+        }
+        .active {
+            display: block;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #score {
+            font-size: 24px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>משחק למידה: DevOps בסיסי</h1>
+        <p>בדוק את הידע שלך ב-Git, GitHub ו-Jenkins!</p>
+        <div id="score">ניקוד: <span id="points">0</span></div>
+
+        <div id="q1" class="question active">
+            <h2>מה תפקידה של הפקודה git commit?</h2>
+            <button onclick="checkAnswer(1, 'b')">א. להוריד שינויים מהשרת</button>
+            <button onclick="checkAnswer(1, 'a')">ב. לשמור שינויים ב-Repository המקומי</button>
+            <button onclick="checkAnswer(1, 'c')">ג. לשלוח קבצים ל-GitHub</button>
+        </div>
+
+        <div id="q2" class="question">
+            <h2>מהו GitHub?</h2>
+            <button onclick="checkAnswer(2, 'a')">א. פלטפורמה לאחסון ושיתוף קוד</button>
+            <button onclick="checkAnswer(2, 'b')">ב. כלי לבניית אתרים</button>
+            <button onclick="checkAnswer(2, 'c')">ג. שפת תכנות</button>
+        </div>
+
+        <div id="q3" class="question">
+            <h2>מה תפקידו של Jenkins?</h2>
+            <button onclick="checkAnswer(3, 'c')">א. ניהול גרסאות</button>
+            <button onclick="checkAnswer(3, 'b')">ב. עריכת קוד</button>
+            <button onclick="checkAnswer(3, 'a')">ג. אוטומציה של בנייה ובדיקות</button>
+        </div>
+
+        <div id="result" style="display: none;">
+            <h2>כל הכבוד!</h2>
+            <p>סיימת את המשחק עם <span id="finalScore"></span> נקודות!</p>
+            <button onclick="restart()">שחק שוב</button>
+        </div>
+    </div>
+
+    <script>
+        let currentQuestion = 1;
+        let score = 0;
+        const totalQuestions = 3;
+
+        function checkAnswer(questionNum, answer) {
+            let correctAnswers = {
+                1: 'a', // git commit
+                2: 'a', // GitHub
+                3: 'a'  // Jenkins
+            };
+
+            if (answer === correctAnswers[questionNum]) {
+                score += 10;
+                document.getElementById('points').textContent = score;
+                alert('תשובה נכונה!');
+            } else {
+                alert('תשובה שגויה, נסה שוב!');
+                return;
+            }
+
+            document.getElementById(`q${questionNum}`).classList.remove('active');
+            currentQuestion++;
+
+            if (currentQuestion <= totalQuestions) {
+                document.getElementById(`q${currentQuestion}`).classList.add('active');
+            } else {
+                showResult();
+            }
+        }
+
+        function showResult() {
+            document.querySelector('.container').children[1].style.display = 'none';
+            document.getElementById('result').style.display = 'block';
+            document.getElementById('finalScore').textContent = score;
+        }
+
+        function restart() {
+            score = 0;
+            currentQuestion = 1;
+            document.getElementById('points').textContent = score;
+            document.getElementById('result').style.display = 'none';
+            for (let i = 1; i <= totalQuestions; i++) {
+                document.getElementById(`q${i}`).classList.remove('active');
+            }
+            document.getElementById('q1').classList.add('active');
+        }
+    </script>
+</body>
+</html>

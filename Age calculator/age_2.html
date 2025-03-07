@@ -1,0 +1,122 @@
+import React, { useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { differenceInYears, differenceInMonths, differenceInDays } from "date-fns";
+import { CalendarIcon, Clock, Sparkles } from "lucide-react";
+
+const CHINESE_ZODIAC = {
+  0: { animal: "Rat", element: "Metal", traits: "Quick-witted, resourceful, and adaptable" },
+  1: { animal: "Ox", element: "Metal", traits: "Diligent, dependable, and determined" },
+  2: { animal: "Tiger", element: "Water", traits: "Brave, confident, and competitive" },
+  3: { animal: "Rabbit", element: "Water", traits: "Gentle, elegant, and alert" },
+  4: { animal: "Dragon", element: "Wood", traits: "Confident, intelligent, and enthusiastic" },
+  5: { animal: "Snake", element: "Wood", traits: "Enigmatic, intelligent, and wise" },
+  6: { animal: "Horse", element: "Fire", traits: "Energetic, independent, and warm-hearted" },
+  7: { animal: "Goat", element: "Fire", traits: "Gentle, mild-mannered, and creative" },
+  8: { animal: "Monkey", element: "Earth", traits: "Witty, intelligent, and creative" },
+  9: { animal: "Rooster", element: "Earth", traits: "Observant, hardworking, and courageous" },
+  10: { animal: "Dog", element: "Metal", traits: "Loyal, honest, and friendly" },
+  11: { animal: "Pig", element: "Metal", traits: "Compassionate, generous, and diligent" }
+};
+
+export default function Calculator() {
+  const [birthDate, setBirthDate] = useState("");
+  const [age, setAge] = useState(null);
+  const [zodiac, setZodiac] = useState(null);
+
+  const calculateAge = () => {
+    if (!birthDate) return;
+    
+    const birth = new Date(birthDate);
+    const now = new Date();
+    
+    const years = differenceInYears(now, birth);
+    const months = differenceInMonths(now, birth) % 12;
+    const days = differenceInDays(now, birth) % 30;
+
+    // Calculate Chinese Zodiac
+    const birthYear = birth.getFullYear();
+    const zodiacIndex = (birthYear - 1900) % 12;
+    const zodiacInfo = CHINESE_ZODIAC[zodiacIndex];
+
+    setAge({ years, months, days });
+    setZodiac(zodiacInfo);
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-blue-50 p-4 flex items-center justify-center">
+      <Card className="w-full max-w-md shadow-xl">
+        <CardHeader className="text-center pb-2">
+          <CardTitle className="text-2xl flex items-center justify-center gap-2">
+            <Clock className="w-6 h-6 text-purple-500" />
+            Age & Zodiac Calculator
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <div className="space-y-2">
+            <Label htmlFor="birthdate">Enter your birth date</Label>
+            <div className="relative">
+              <Input
+                id="birthdate"
+                type="date"
+                value={birthDate}
+                onChange={(e) => setBirthDate(e.target.value)}
+                className="w-full pl-10"
+              />
+              <CalendarIcon className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
+            </div>
+          </div>
+
+          <Button 
+            onClick={calculateAge} 
+            className="w-full bg-purple-600 hover:bg-purple-700"
+            disabled={!birthDate}
+          >
+            Calculate
+          </Button>
+
+          {age && (
+            <>
+              <div className="grid grid-cols-3 gap-4">
+                <div className="text-center p-4 bg-purple-100 rounded-lg">
+                  <div className="text-3xl font-bold text-purple-600">{age.years}</div>
+                  <div className="text-sm text-purple-600">Years</div>
+                </div>
+                <div className="text-center p-4 bg-blue-100 rounded-lg">
+                  <div className="text-3xl font-bold text-blue-600">{age.months}</div>
+                  <div className="text-sm text-blue-600">Months</div>
+                </div>
+                <div className="text-center p-4 bg-green-100 rounded-lg">
+                  <div className="text-3xl font-bold text-green-600">{age.days}</div>
+                  <div className="text-sm text-green-600">Days</div>
+                </div>
+              </div>
+
+              {zodiac && (
+                <div className="bg-amber-50 p-6 rounded-lg space-y-3">
+                  <div className="flex items-center justify-center gap-2 text-xl font-semibold text-amber-700">
+                    <Sparkles className="w-5 h-5" />
+                    Chinese Zodiac Sign
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-amber-600">
+                      {zodiac.animal}
+                    </div>
+                    <div className="text-amber-600 font-medium">
+                      Element: {zodiac.element}
+                    </div>
+                    <div className="text-sm text-amber-700 mt-2">
+                      {zodiac.traits}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </>
+          )}
+        </CardContent>
+      </Card>
+    </div>
+  );
+}

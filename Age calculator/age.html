@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>מחשבון גיל ומזלות</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+            text-align: center;
+        }
+        input, button {
+            margin: 10px;
+            padding: 5px;
+        }
+        #result {
+            margin-top: 20px;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+    <h1>מחשבון גיל ומזלות</h1>
+    <label for="birthdate">הזן תאריך לידה:</label>
+    <input type="date" id="birthdate">
+    <button onclick="calculate()">חשב</button>
+    <div id="result"></div>
+
+    <script>
+        function calculate() {
+            const birthdate = new Date(document.getElementById('birthdate').value);
+            const today = new Date();
+            
+            let age = today.getFullYear() - birthdate.getFullYear();
+            const monthDiff = today.getMonth() - birthdate.getMonth();
+            if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthdate.getDate())) {
+                age--;
+            }
+
+            const day = birthdate.getDate();
+            const month = birthdate.getMonth() + 1;
+            let zodiac = '';
+            if ((month == 3 && day >= 21) || (month == 4 && day <= 19)) zodiac = 'טלה';
+            else if ((month == 4 && day >= 20) || (month == 5 && day <= 20)) zodiac = 'שור';
+            else if ((month == 5 && day >= 21) || (month == 6 && day <= 20)) zodiac = 'תאומים';
+            else if ((month == 6 && day >= 21) || (month == 7 && day <= 22)) zodiac = 'סרטן';
+            else if ((month == 7 && day >= 23) || (month == 8 && day <= 22)) zodiac = 'אריה';
+            else if ((month == 8 && day >= 23) || (month == 9 && day <= 22)) zodiac = 'בתולה';
+            else if ((month == 9 && day >= 23) || (month == 10 && day <= 22)) zodiac = 'מאזניים';
+            else if ((month == 10 && day >= 23) || (month == 11 && day <= 21)) zodiac = 'עקרב';
+            else if ((month == 11 && day >= 22) || (month == 12 && day <= 21)) zodiac = 'קשת';
+            else if ((month == 12 && day >= 22) || (month == 1 && day <= 19)) zodiac = 'גדי';
+            else if ((month == 1 && day >= 20) || (month == 2 && day <= 18)) zodiac = 'דלי';
+            else if ((month == 2 && day >= 19) || (month == 3 && day <= 20)) zodiac = 'דגים';
+
+            const chineseZodiacs = [
+                'עכברוש', 'שור', 'נמר', 'ארנבת', 'דרקון', 'נחש',
+                'סוס', 'כבשה', 'קוף', 'תרנגול', 'כלב', 'חזיר'
+            ];
+            const chineseYear = (birthdate.getFullYear() - 1900) % 12;
+            const chineseZodiac = chineseZodiacs[chineseYear];
+
+            const ethiopianYear = birthdate.getFullYear() - (month > 9 || (month === 9 && day >= 11) ? 7 : 8);
+
+            const result = document.getElementById('result');
+            if (isNaN(birthdate)) {
+                result.innerHTML = 'אנא הזן תאריך תקין';
+            } else {
+                result.innerHTML = `
+                    גיל: ${age} שנים<br>
+                    מזל מערבי: ${zodiac}<br>
+                    מזל סיני: ${chineseZodiac}<br>
+                    שנה אתיופית: ${ethiopianYear}
+                `;
+            }
+        }
+    </script>
+</body>
+</html>

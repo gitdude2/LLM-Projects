@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>מנהל טאבים</title>
+    <meta charset="UTF-8">
+    <style>
+        :root {
+            --primary-color: #4a6cf7;
+            --primary-hover: #3a5ce7;
+            --background-color: #f8f9fa;
+            --card-bg: #ffffff;
+            --text-color: #444444;
+            --text-secondary: #666666;
+            --border-color: #e5e7eb;
+            --danger-color: #f56565;
+            --sleep-color: #4299e1;
+            --header-color: #2d3748;
+        }
+
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            width: 380px;
+            direction: rtl;
+            transition: width 0.3s ease, background-color 0.3s ease;
+            max-height: 600px;
+            overflow-y: auto;
+            background-color: var(--background-color);
+            margin: 0;
+            padding: 0;
+            color: var(--text-color);
+        }
+
+        body.expanded {
+            width: 580px;
+        }
+
+        .container {
+            padding: 12px;
+        }
+
+        .tab-item { 
+            display: flex; 
+            justify-content: space-between; 
+            padding: 10px 12px; 
+            border-radius: 8px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            align-items: center;
+            background-color: var(--card-bg);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+            min-width: 0; /* לתמיכה מלאה בoverflow הטקסט */
+        }
+
+        .tab-item:hover {
+            box-shadow: 0 4px 8px rgba(0,0,0,0.08);
+            transform: translateY(-1px);
+            background-color: #fafbfc;
+        }
+
+        .tab-content {
+            display: flex;
+            align-items: center;
+            min-width: 0; /* חשוב עבור תמיכה באלמנט מוכל עם גלישה */
+            flex: 1;
+        }
+
+        .tab-title {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            flex: 1;
+            font-weight: 500;
+            margin-left: 12px;
+            min-width: 0; /* חשוב לגלישה נכונה */
+        }
+
+        .controls {
+            display: flex;
+            align-items: center;
+            white-space: nowrap;
+            flex-shrink: 0;
+            margin-right: 8px;
+        }
+
+        .controls button { 
+            width: 28px;
+            height: 28px;
+            margin-right: 4px;
+            border: none;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.2s, transform 0.1s;
+            background-color: transparent;
+            flex-shrink: 0;
+        }
+
+        .close-btn {
+            color: var(--danger-color);
+        }
+
+        .close-btn:hover {
+            background-color: rgba(245, 101, 101, 0.1);
+            transform: scale(1.05);
+        }
+
+        .sleep-btn {
+            color: var(--sleep-color);
+        }
+
+        .sleep-btn:hover {
+            background-color: rgba(66, 153, 225, 0.1);
+            transform: scale(1.05);
+        }
+
+        .memory-usage {
+            font-weight: 600;
+            white-space: nowrap;
+            min-width: 44px;
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 0.9em;
+            background-color: rgba(0,0,0,0.03);
+            padding: 3px 6px;
+            border-radius: 5px;
+            margin-left: 5px;
+            flex-shrink: 0;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--header-color);
+            margin: 0;
+            white-space: nowrap;
+        }
+
+        .tab-count {
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: 20px;
+            padding: 2px 8px;
+            font-size: 13px;
+            margin-right: 6px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .expand-button {
+            background-color: transparent;
+            border: 1px solid var(--border-color);
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+            flex-shrink: 0;
+        }
+
+        .expand-button:hover {
+            background-color: rgba(0,0,0,0.03);
+            transform: scale(1.05);
+        }
+
+        .sort-controls {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 14px;
+            gap: 8px;
+        }
+
+        .sort-controls span {
+            color: var(--text-secondary);
+            font-size: 14px;
+            white-space: nowrap;
+        }
+
+        .sort-button {
+            background-color: transparent;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 5px 10px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            flex-shrink: 0;
+        }
+
+        .sort-button:hover {
+            background-color: rgba(0,0,0,0.03);
+        }
+
+        .sort-button.active {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .active-tab {
+            border-right: 3px solid var(--primary-color);
+            background-color: rgba(74, 108, 247, 0.05);
+        }
+
+        /* מקום לאייקון הטאב */
+        .tab-icon {
+            width: 16px;
+            height: 16px;
+            margin-left: 6px;
+            background-size: contain;
+            background-position: center;
+            background-repeat: no-repeat;
+            flex-shrink: 0;
+        }
+
+        /* סקרולבר מותאם אישית */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 class="title">טאבים פתוחים <span class="tab-count" id="tab-count">0</span></h1>
+            <button id="expand-toggle" class="expand-button" title="הרחב/צמצם חלון">⟷</button>
+        </div>
+        
+        <div class="sort-controls">
+            <span>מיון לפי צריכת זיכרון:</span>
+            <button id="sort-asc" class="sort-button">
+                <span>עולה</span>
+                <span>↑</span>
+            </button>
+            <button id="sort-desc" class="sort-button">
+                <span>יורד</span>
+                <span>↓</span>
+            </button>
+        </div>
+        
+        <div id="tab-list"></div>
+    </div>
+    
+    <script src="popup.js"></script>
+</body>
+</html>
