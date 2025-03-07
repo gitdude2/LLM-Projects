@@ -9,6 +9,7 @@ chrome.tabs.onUpdated.addListener(updateTabsInfo);
 chrome.tabs.onRemoved.addListener(updateTabsInfo);
 chrome.tabs.onCreated.addListener(updateTabsInfo);
 chrome.tabs.onActivated.addListener(updateTabsInfo);
+chrome.tabs.onReplaced.addListener(updateTabsInfo);
 
 /**
  * אוסף מידע על הטאבים הפתוחים ומאחסן אותו
@@ -21,7 +22,9 @@ async function updateTabsInfo() {
 
         for (let tab of tabs) {
             // נתוני זיכרון מדומים (במציאות אין גישה ישירה לנתוני זיכרון של טאבים)
-            let memoryUsage = getEstimatedMemoryUsage(tab);
+            let memoryUsage = tab.discarded ? 
+                Math.floor(Math.random() * 5 + 1) : // 1-6MB כשהטאב במצב שינה
+                getEstimatedMemoryUsage(tab);
             
             tabInfo.push({
                 id: tab.id,
@@ -30,7 +33,8 @@ async function updateTabsInfo() {
                 favIconUrl: tab.favIconUrl || null,
                 memoryUsage: memoryUsage,
                 active: tab.active,
-                index: tab.index
+                index: tab.index,
+                discarded: tab.discarded || false // אינדיקטור האם הטאב במצב שינה
             });
         }
 
@@ -103,6 +107,9 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         if (message.action === "updateTabs") {
             updateTabsInfo().then(() => {
                 sendResponse({ status: "success" });
+            }).catch(error => {
+                console.error("שגיאה בעדכון מידע הטאבים:", error);
+                sendResponse({ status: "error", message: error.message });
             });
             return true; // להשאיר את הערוץ פתוח לתשובה מאוחרת
         }

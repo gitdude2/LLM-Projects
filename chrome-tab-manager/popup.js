@@ -40,9 +40,21 @@ document.addEventListener("DOMContentLoaded", () => {
             e.stopPropagation();
             const sleepButton = e.target.classList.contains("sleep-btn") ? e.target : e.target.parentElement;
             const tabId = parseInt(sleepButton.getAttribute("data-id"));
-            chrome.tabs.discard(tabId, () => {
-                updateTabList();
-            });
+            
+            // העברת הטאב למצב שינה עם טיפול בשגיאות
+            chrome.tabs.discard(tabId)
+                .then(() => {
+                    console.log(`Tab ${tabId} successfully discarded`);
+                    // עדכון סטטוס הטאב בממשק המשתמש
+                    chrome.runtime.sendMessage({ action: "updateTabs" }, () => {
+                        updateTabList();
+                    });
+                })
+                .catch((error) => {
+                    console.error(`Error discarding tab ${tabId}:`, error);
+                    // במקרה של שגיאה, עדיין ננסה לעדכן את הרשימה
+                    updateTabList();
+                });
             return;
         }
         
@@ -142,6 +154,12 @@ function updateTabList() {
                     if (tab.id === activeTabId) {
                         tabElement.classList.add("active-tab");
                     }
+                    
+                    // הוספת סימון לטאבים במצב שינה
+                    if (tab.discarded) {
+                        tabElement.classList.add("discarded-tab");
+                    }
+                    
                     tabElement.setAttribute("data-id", tab.id);
                     
                     // יצירת אייקון הטאב (אם יש)
@@ -152,14 +170,20 @@ function updateTabList() {
                     // קיצור הכותרת אם צריך
                     const displayTitle = truncateTitle(tab.title, isExpanded ? 60 : 30);
                     
+                    // שינוי הצג של כפתור השינה אם הטאב כבר במצב שינה
+                    const sleepBtnTitle = tab.discarded ? "הפעל טאב" : "העבר למצב שינה";
+                    const sleepBtnIcon = tab.discarded ? "⏰" : "🛏️";
+                    
                     tabElement.innerHTML = `
                         <div class="tab-content">
                             ${iconHtml}
-                            <div class="tab-title" title="${tab.title}">${displayTitle}</div>
+                            <div class="tab-title" title="${tab.title}">
+                                ${tab.discarded ? '💤 ' : ''}${displayTitle}
+                            </div>
                         </div>
                         <div class="controls">
                             <span class="memory-usage">${tab.memoryUsage}MB</span>
-                            <button class="sleep-btn" data-id="${tab.id}" title="העבר למצב שינה">🛏️</button>
+                            <button class="sleep-btn" data-id="${tab.id}" title="${sleepBtnTitle}">${sleepBtnIcon}</button>
                             <button class="close-btn" data-id="${tab.id}" title="סגור טאב">×</button>
                         </div>
                     `;
