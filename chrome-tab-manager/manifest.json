@@ -2,7 +2,7 @@
     "manifest_version": 3,
     "name": "Tab Manager",
     "version": "1.0",
-    "description": "תוסף לניהול טאבים כולל סגירה והעברת טאבים למצב שינה",
+    "description": "Extension for tab management including closing and putting tabs to sleep",
     "permissions": ["tabs", "storage"],
     "host_permissions": ["<all_urls>"],
     "background": {

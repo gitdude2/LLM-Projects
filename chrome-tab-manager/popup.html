@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>מנהל טאבים</title>
+    <title>Tab Manager</title>
     <meta charset="UTF-8">
     <style>
         :root {
@@ -49,7 +49,7 @@
             background-color: var(--card-bg);
             box-shadow: 0 1px 3px rgba(0,0,0,0.05);
             transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
-            min-width: 0; /* לתמיכה מלאה בoverflow הטקסט */
+            min-width: 0; /* For full support of text overflow */
         }
 
         .tab-item:hover {
@@ -61,7 +61,7 @@
         .tab-content {
             display: flex;
             align-items: center;
-            min-width: 0; /* חשוב עבור תמיכה באלמנט מוכל עם גלישה */
+            min-width: 0; /* Important for contained element with overflow */
             flex: 1;
         }
 
@@ -72,7 +72,7 @@
             flex: 1;
             font-weight: 500;
             margin-left: 12px;
-            min-width: 0; /* חשוב לגלישה נכונה */
+            min-width: 0; /* Important for proper overflow */
         }
 
         .controls {
@@ -222,7 +222,7 @@
             background-color: rgba(74, 108, 247, 0.05);
         }
 
-        /* מקום לאייקון הטאב */
+        /* Tab icon placeholder */
         .tab-icon {
             width: 16px;
             height: 16px;
@@ -233,7 +233,7 @@
             flex-shrink: 0;
         }
 
-        /* סקרולבר מותאם אישית */
+        /* Custom scrollbar */
         ::-webkit-scrollbar {
             width: 6px;
         }
@@ -251,23 +251,56 @@
         ::-webkit-scrollbar-thumb:hover {
             background: #a8a8a8;
         }
+
+        /* Additional style for tabs in sleep mode */
+        .discarded-tab {
+            background-color: #f0f7ff;
+            border-right: 3px dashed var(--sleep-color);
+        }
+
+        .discarded-tab .tab-title {
+            color: var(--text-secondary);
+            font-style: italic;
+        }
+
+        .discarded-tab .memory-usage {
+            background-color: #e6f2ff;
+            color: var(--sleep-color);
+        }
+
+        /* Emphasize the sleep/wake button */
+        .sleep-btn:hover {
+            background-color: rgba(66, 153, 225, 0.15);
+            transform: scale(1.1);
+        }
+
+        /* Animation to highlight sleep action */
+        @keyframes sleepPulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.2); opacity: 0.7; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .sleep-animation {
+            animation: sleepPulse 0.5s ease-in-out;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1 class="title">טאבים פתוחים <span class="tab-count" id="tab-count">0</span></h1>
-            <button id="expand-toggle" class="expand-button" title="הרחב/צמצם חלון">⟷</button>
+            <h1 class="title">Open Tabs <span class="tab-count" id="tab-count">0</span></h1>
+            <button id="expand-toggle" class="expand-button" title="Expand/Collapse Window">⟷</button>
         </div>
         
         <div class="sort-controls">
-            <span>מיון לפי צריכת זיכרון:</span>
+            <span>Sort by memory usage:</span>
             <button id="sort-asc" class="sort-button">
-                <span>עולה</span>
+                <span>Ascending</span>
                 <span>↑</span>
             </button>
             <button id="sort-desc" class="sort-button">
-                <span>יורד</span>
+                <span>Descending</span>
                 <span>↓</span>
             </button>
         </div>

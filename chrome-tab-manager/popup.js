@@ -1,11 +1,11 @@
-// מצב המיון הנוכחי
+// Current sort state
 let currentSortOrder = null; // 'asc', 'desc', or null
-let isExpanded = false; // האם החלון מורחב
+let isExpanded = false; // Is the window expanded
 
 document.addEventListener("DOMContentLoaded", () => {
-    // טעינת מצב החלון (מורחב או רגיל)
+    // Load window state (expanded or regular)
     chrome.storage.local.get(["isExpanded", "sortOrder"], (data) => {
-        // שחזור מצב החלון
+        // Restore window state
         if (data.isExpanded) {
             isExpanded = data.isExpanded;
             if (isExpanded) {
@@ -13,19 +13,19 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         }
         
-        // שחזור מצב המיון
+        // Restore sort state
         if (data.sortOrder) {
             currentSortOrder = data.sortOrder;
             updateSortButtons();
         }
     });
 
-    // טעינת והצגת הטאבים
+    // Load and display tabs
     updateTabList();
     
-    // טיפול באירועי לחיצה
+    // Handle click events
     document.getElementById("tab-list").addEventListener("click", (e) => {
-        // בדיקה אם לחצו על כפתור
+        // Check if button was clicked
         if (e.target.classList.contains("close-btn") || e.target.parentElement.classList.contains("close-btn")) {
             e.stopPropagation();
             const closeButton = e.target.classList.contains("close-btn") ? e.target : e.target.parentElement;
@@ -41,24 +41,24 @@ document.addEventListener("DOMContentLoaded", () => {
             const sleepButton = e.target.classList.contains("sleep-btn") ? e.target : e.target.parentElement;
             const tabId = parseInt(sleepButton.getAttribute("data-id"));
             
-            // העברת הטאב למצב שינה עם טיפול בשגיאות
+            // Put tab to sleep with error handling
             chrome.tabs.discard(tabId)
                 .then(() => {
                     console.log(`Tab ${tabId} successfully discarded`);
-                    // עדכון סטטוס הטאב בממשק המשתמש
+                    // Update tab status in UI
                     chrome.runtime.sendMessage({ action: "updateTabs" }, () => {
                         updateTabList();
                     });
                 })
                 .catch((error) => {
                     console.error(`Error discarding tab ${tabId}:`, error);
-                    // במקרה של שגיאה, עדיין ננסה לעדכן את הרשימה
+                    // In case of error, still try to update the list
                     updateTabList();
                 });
             return;
         }
         
-        // אם לחצו על איזור הטאב (לא על כפתור)
+        // If tab area was clicked (not a button)
         const tabItem = e.target.closest('.tab-item');
         if (tabItem) {
             const tabId = parseInt(tabItem.getAttribute("data-id"));
@@ -68,7 +68,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
     
-    // כפתורי מיון
+    // Sort buttons
     document.getElementById("sort-asc").addEventListener("click", () => {
         currentSortOrder = 'asc';
         chrome.storage.local.set({ sortOrder: currentSortOrder });
@@ -83,27 +83,27 @@ document.addEventListener("DOMContentLoaded", () => {
         updateTabList();
     });
     
-    // כפתור הרחבת חלון
+    // Window expand button
     document.getElementById("expand-toggle").addEventListener("click", () => {
         isExpanded = !isExpanded;
         document.body.classList.toggle('expanded', isExpanded);
         chrome.storage.local.set({ isExpanded: isExpanded });
     });
     
-    // בקשה לעדכון מידע כשהחלונית נפתחת
+    // Request info update when popup opens
     chrome.runtime.sendMessage({ action: "updateTabs" });
 });
 
 /**
- * עדכון מצב כפתורי המיון
+ * Update sort button states
  */
 function updateSortButtons() {
-    // מחיקת המחלקה 'active' מכל הכפתורים
+    // Remove 'active' class from all buttons
     document.querySelectorAll('.sort-button').forEach(btn => {
         btn.classList.remove('active');
     });
     
-    // הוספת המחלקה 'active' לכפתור הפעיל
+    // Add 'active' class to the active button
     if (currentSortOrder === 'asc') {
         document.getElementById('sort-asc').classList.add('active');
     } else if (currentSortOrder === 'desc') {
@@ -112,16 +112,16 @@ function updateSortButtons() {
 }
 
 /**
- * קיצור כותרת לאורך מקסימלי
+ * Truncate title to max length
  */
 function truncateTitle(title, maxLength = 40) {
-    if (!title) return "טאב ללא כותרת";
+    if (!title) return "Tab without title";
     if (title.length <= maxLength) return title;
     return title.substring(0, maxLength) + '...';
 }
 
 /**
- * עדכון רשימת הטאבים
+ * Update tab list
  */
 function updateTabList() {
     chrome.storage.local.get(["tabs", "count"], (data) => {
@@ -131,11 +131,11 @@ function updateTabList() {
             tabList.innerHTML = "";
             
             if (data.tabs.length === 0) {
-                tabList.innerHTML = `<div class="tab-item">אין טאבים פתוחים</div>`;
+                tabList.innerHTML = `<div class="tab-item">No open tabs</div>`;
                 return;
             }
             
-            // מיון הטאבים אם נבחר מיון
+            // Sort tabs if sort option is selected
             let sortedTabs = [...data.tabs];
             if (currentSortOrder === 'asc') {
                 sortedTabs.sort((a, b) => a.memoryUsage - b.memoryUsage);
@@ -143,11 +143,11 @@ function updateTabList() {
                 sortedTabs.sort((a, b) => b.memoryUsage - a.memoryUsage);
             }
             
-            // קבלת הטאב הנוכחי
+            // Get current tab
             chrome.tabs.query({ active: true, currentWindow: true }, (activeTabs) => {
                 const activeTabId = activeTabs.length > 0 ? activeTabs[0].id : null;
                 
-                // הצגת הטאבים
+                // Display tabs
                 sortedTabs.forEach(tab => {
                     let tabElement = document.createElement("div");
                     tabElement.className = "tab-item";
@@ -155,23 +155,23 @@ function updateTabList() {
                         tabElement.classList.add("active-tab");
                     }
                     
-                    // הוספת סימון לטאבים במצב שינה
+                    // Add marker for tabs in sleep mode
                     if (tab.discarded) {
                         tabElement.classList.add("discarded-tab");
                     }
                     
                     tabElement.setAttribute("data-id", tab.id);
                     
-                    // יצירת אייקון הטאב (אם יש)
+                    // Create tab icon (if exists)
                     const iconHtml = tab.favIconUrl ? 
                         `<div class="tab-icon" style="background-image: url('${tab.favIconUrl}')"></div>` :
                         `<div class="tab-icon"></div>`;
                     
-                    // קיצור הכותרת אם צריך
+                    // Truncate the title if needed
                     const displayTitle = truncateTitle(tab.title, isExpanded ? 60 : 30);
                     
-                    // שינוי הצג של כפתור השינה אם הטאב כבר במצב שינה
-                    const sleepBtnTitle = tab.discarded ? "הפעל טאב" : "העבר למצב שינה";
+                    // Change sleep button display if tab is already in sleep mode
+                    const sleepBtnTitle = tab.discarded ? "Wake up tab" : "Put tab to sleep";
                     const sleepBtnIcon = tab.discarded ? "⏰" : "🛏️";
                     
                     tabElement.innerHTML = `
@@ -184,14 +184,14 @@ function updateTabList() {
                         <div class="controls">
                             <span class="memory-usage">${tab.memoryUsage}MB</span>
                             <button class="sleep-btn" data-id="${tab.id}" title="${sleepBtnTitle}">${sleepBtnIcon}</button>
-                            <button class="close-btn" data-id="${tab.id}" title="סגור טאב">×</button>
+                            <button class="close-btn" data-id="${tab.id}" title="Close tab">×</button>
                         </div>
                     `;
                     tabList.appendChild(tabElement);
                 });
             });
         } else {
-            document.getElementById("tab-list").innerHTML = `<div class="tab-item">אין מידע זמין</div>`;
+            document.getElementById("tab-list").innerHTML = `<div class="tab-item">No information available</div>`;
         }
     });
 }
