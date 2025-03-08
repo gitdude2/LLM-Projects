@@ -73,6 +73,10 @@ document.addEventListener("DOMContentLoaded", () => {
         currentSortOrder = 'asc';
         chrome.storage.local.set({ sortOrder: currentSortOrder });
         updateSortButtons();
+        
+        // Reset text color for non-active button
+        document.getElementById('sort-desc').style.color = "";
+        
         updateTabList();
     });
     
@@ -80,6 +84,10 @@ document.addEventListener("DOMContentLoaded", () => {
         currentSortOrder = 'desc';
         chrome.storage.local.set({ sortOrder: currentSortOrder });
         updateSortButtons();
+        
+        // Reset text color for non-active button
+        document.getElementById('sort-asc').style.color = "";
+        
         updateTabList();
     });
     
@@ -101,13 +109,28 @@ function updateSortButtons() {
     // Remove 'active' class from all buttons
     document.querySelectorAll('.sort-button').forEach(btn => {
         btn.classList.remove('active');
+        // Reset inline styles
+        btn.style.color = "";
+        btn.querySelectorAll('span').forEach(span => {
+            span.style.color = "";
+        });
     });
     
-    // Add 'active' class to the active button
+    // Add 'active' class to the active button and force white text
     if (currentSortOrder === 'asc') {
-        document.getElementById('sort-asc').classList.add('active');
+        const ascButton = document.getElementById('sort-asc');
+        ascButton.classList.add('active');
+        ascButton.style.color = "#ffffff";
+        ascButton.querySelectorAll('span').forEach(span => {
+            span.style.color = "#ffffff";
+        });
     } else if (currentSortOrder === 'desc') {
-        document.getElementById('sort-desc').classList.add('active');
+        const descButton = document.getElementById('sort-desc');
+        descButton.classList.add('active');
+        descButton.style.color = "#ffffff";
+        descButton.querySelectorAll('span').forEach(span => {
+            span.style.color = "#ffffff";
+        });
     }
 }
 
@@ -124,11 +147,25 @@ function truncateTitle(title, maxLength = 40) {
  * Update tab list
  */
 function updateTabList() {
-    chrome.storage.local.get(["tabs", "count"], (data) => {
+    chrome.storage.local.get(["tabs", "count", "totalMemory", "sleepingCount", "activeCount"], (data) => {
         if (data.tabs) {
             document.getElementById("tab-count").textContent = data.count || 0;
             const tabList = document.getElementById("tab-list");
             tabList.innerHTML = "";
+            
+            // Display total memory usage
+            const totalMemory = data.totalMemory || data.tabs.reduce((total, tab) => total + tab.memoryUsage, 0);
+            document.getElementById("total-memory-usage").textContent = totalMemory.toFixed(0) + " MB";
+            
+            // Display tab counts
+            const sleepingTabs = data.sleepingCount !== undefined ? data.sleepingCount : 
+                               data.tabs.filter(tab => tab.discarded).length;
+            const activeTabs = data.activeCount !== undefined ? data.activeCount : 
+                             data.tabs.length - sleepingTabs;
+            
+            // Update tab counts in UI
+            document.getElementById("active-tabs-count").textContent = activeTabs;
+            document.getElementById("sleeping-tabs-count").textContent = sleepingTabs;
             
             if (data.tabs.length === 0) {
                 tabList.innerHTML = `<div class="tab-item">No open tabs</div>`;

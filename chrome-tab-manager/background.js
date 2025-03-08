@@ -38,10 +38,18 @@ async function updateTabsInfo() {
             });
         }
 
+        // Calculate tab stats
+        const totalMemoryUsage = tabInfo.reduce((total, tab) => total + tab.memoryUsage, 0);
+        const sleepingTabs = tabInfo.filter(tab => tab.discarded).length;
+        const activeTabs = tabInfo.length - sleepingTabs;
+        
         // Save data to storage
         chrome.storage.local.set({ 
             tabs: tabInfo, 
             count: tabs.length,
+            totalMemory: totalMemoryUsage,
+            sleepingCount: sleepingTabs,
+            activeCount: activeTabs,
             lastUpdated: new Date().toISOString()
         });
     } catch (error) {

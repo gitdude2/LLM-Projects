@@ -179,6 +179,39 @@
             transform: scale(1.05);
         }
 
+        .total-memory {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            font-size: 14px;
+            padding: 8px 12px;
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        }
+        
+        .memory-stat, .tabs-stat {
+            display: flex;
+            align-items: center;
+        }
+        
+        #total-memory-usage {
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-left: 5px;
+        }
+        
+        #active-tabs-count {
+            font-weight: 600;
+            color: var(--text-color);
+        }
+        
+        #sleeping-tabs-count {
+            font-weight: 600;
+            color: var(--sleep-color);
+        }
+        
         .sort-controls {
             display: flex;
             align-items: center;
@@ -193,6 +226,7 @@
             white-space: nowrap;
         }
 
+        /* Style for sort buttons */
         .sort-button {
             background-color: transparent;
             border: 1px solid var(--border-color);
@@ -200,21 +234,38 @@
             padding: 5px 10px;
             font-size: 14px;
             cursor: pointer;
-            transition: background-color 0.2s;
+            transition: background-color 0.2s, color 0.2s;
             display: flex;
             align-items: center;
             gap: 4px;
             flex-shrink: 0;
+            color: var(--text-color);
         }
 
         .sort-button:hover {
             background-color: rgba(0,0,0,0.03);
         }
 
+        /* Force white text on active button */
         .sort-button.active {
             background-color: var(--primary-color);
-            color: white;
+            color: #ffffff !important;
             border-color: var(--primary-color);
+        }
+        
+        /* Ensure all spans inside active buttons are white */
+        .sort-button.active span {
+            color: #ffffff !important;
+        }
+        
+        /* Reset text color on inactive buttons */
+        .sort-button:not(.active) {
+            color: var(--text-color) !important;
+        }
+        
+        /* Ensure all spans inside inactive buttons have default text color */
+        .sort-button:not(.active) span {
+            color: var(--text-color) !important;
         }
 
         .active-tab {
@@ -293,15 +344,26 @@
             <button id="expand-toggle" class="expand-button" title="Expand/Collapse Window">⟷</button>
         </div>
         
+        <div class="total-memory">
+            <div class="memory-stat">
+                <span>Total Memory Usage: </span>
+                <span id="total-memory-usage">0 MB</span>
+            </div>
+            <div class="tabs-stat">
+                <span id="active-tabs-count">0</span> active / 
+                <span id="sleeping-tabs-count">0</span> sleeping
+            </div>
+        </div>
+        
         <div class="sort-controls">
             <span>Sort by memory usage:</span>
             <button id="sort-asc" class="sort-button">
-                <span>Ascending</span>
-                <span>↑</span>
+                <span class="sort-text">Ascending</span>
+                <span class="sort-arrow">↑</span>
             </button>
             <button id="sort-desc" class="sort-button">
-                <span>Descending</span>
-                <span>↓</span>
+                <span class="sort-text">Descending</span>
+                <span class="sort-arrow">↓</span>
             </button>
         </div>
         
